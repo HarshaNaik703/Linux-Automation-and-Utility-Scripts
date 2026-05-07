@@ -1,1 +1,12 @@
 #!/usr/bin/env bash
+files=*
+git init
+read -p "Files to add (give * for all files): " -a files
+if [[ "${files[0]}" == "*" ]]; then
+    git add *
+else
+    git add "${files[@]}"
+fi
+
+read -p "commit message" commit
+git commit -m "$commit"
