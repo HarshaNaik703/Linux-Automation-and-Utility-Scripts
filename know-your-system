@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+hostname=$(hostname -s)
+ipAaddress=$(hostname -I | awk '{ print $1 }' )
+echo $hostname
+echo $ipAaddress
