@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+1. ask for the branch, 
+2. create a new brach if he/she wants to.
+3. add, commit and push.
+
 files=*
 git init
 read -p "Files to add (give * for all files): " -a files
