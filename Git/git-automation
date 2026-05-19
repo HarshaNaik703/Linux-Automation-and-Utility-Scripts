@@ -13,6 +13,7 @@ git commit -m "$commit"
 
 read -p "give the branch name" branch
 git checkout "$branch"
+# if the person not in the same branch, you must revert.
 if [[ "$(git branch --show-current)" == "$branch" ]]; then
     git push origin "$branch"
 else
