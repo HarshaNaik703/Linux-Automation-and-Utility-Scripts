@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
 
-trap 'echo "Error occurred"' ERR
+commit_done=false
+
+handle_error() {
+    echo "Error occurred"
+
+    if $commit_done; then
+        echo "Undoing last commit..."
+        git reset --soft HEAD~1
+    fi
+}
+
+trap handle_error ERR
 trap 'echo "Done!!!!"' EXIT
 
+# Initialize git repo if needed
 if [ ! -d ".git" ]; then
     git init
 fi
 
+# Read files
 read -p "Files to add (* for all): " -a files
 
 if [[ "${files[0]}" == "*" ]]; then
@@ -15,14 +28,20 @@ else
     git add "${files[@]}"
 fi
 
+# Commit
 read -p "Commit message: " commit
+
 git commit -m "$commit"
 
+commit_done=true
+
+# Branch handling
 read -p "Branch name: " branch
 
 git switch "$branch" 2>/dev/null ||
 git switch -c "$branch"
 
+# Push choice
 read -p "Push to remote? (yes/no): " _push
 
 if [[ $_push == "yes" &&
