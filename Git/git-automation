@@ -31,9 +31,12 @@ fi
 # Commit
 read -p "Commit message: " commit
 
-git commit -m "$commit"
-
-commit_done=true
+if git commit -m "$commit"
+then
+    echo "success"
+else
+    echo "failed"
+fi
 
 # Branch handling
 read -p "Branch name: " branch
