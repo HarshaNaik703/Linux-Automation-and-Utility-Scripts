@@ -1,25 +1,34 @@
 #!/usr/bin/env bash
-1. ask for the branch, 
-2. create a new brach if he/she wants to.
-3. add, commit and push.
 
-files=*
-git init
-read -p "Files to add (give * for all files): " -a files
+trap 'echo "Error occurred"' ERR
+trap 'echo "Done!!!!"' EXIT
+
+if [ ! -d ".git" ]; then
+    git init
+fi
+
+read -p "Files to add (* for all): " -a files
+
 if [[ "${files[0]}" == "*" ]]; then
-    git add *
+    git add .
 else
     git add "${files[@]}"
 fi
 
-read -p "commit message" commit
+read -p "Commit message: " commit
 git commit -m "$commit"
 
-read -p "give the branch name" branch
-git checkout "$branch"
-# if the person not in the same branch, you must revert.
-if [[ "$(git branch --show-current)" == "$branch" ]]; then
+read -p "Branch name: " branch
+
+git switch "$branch" 2>/dev/null ||
+git switch -c "$branch"
+
+read -p "Push to remote? (yes/no): " _push
+
+if [[ $_push == "yes" &&
+      "$(git branch --show-current)" == "$branch" ]]
+then
     git push origin "$branch"
 else
-    echo "you're not in the same branch" >&2
+    echo "Local checkpoint only"
 fi
