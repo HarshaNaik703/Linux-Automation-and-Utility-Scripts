@@ -48,7 +48,7 @@ git switch -c "$branch"
 read -p "Push to remote? (yes/no): " _push
 
 if [[ $_push == "yes" &&
-      "$(git branch --show-current)" == "$branch" ]]
+    "$(git branch --show-current)" == "$branch" ]]
 then
     git push origin "$branch"
 else

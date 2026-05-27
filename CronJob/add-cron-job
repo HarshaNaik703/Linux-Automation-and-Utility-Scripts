@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+set -e
+
+handle_error() {
+    echo "Error occurred while adding cron job"
+}
+
+trap handle_error ERR
+trap 'echo "Script finished"' EXIT
+
+echo "====== CRON JOB SETUP ======"
+
+read -p "Enter command/script path: " command
+
+if [[ ! -f "$command" && ! "$command" =~ ^/ ]]
+then
+    echo "Invalid command or path"
+    exit 1
+fi
+
+echo
+echo "Choose schedule:"
+echo "1. Every minute"
+echo "2. Every hour"
+echo "3. Every day"
+echo "4. Custom"
+
+read -p "Choice: " choice
+
+case $choice in
+
+    1)
+        cron_time="* * * * *"
+        ;;
+
+    2)
+        cron_time="0 * * * *"
+        ;;
+
+    3)
+        read -p "Enter hour (0-23): " hour
+        read -p "Enter minute (0-59): " minute
+
+        cron_time="$minute $hour * * *"
+        ;;
+
+    4)
+        echo "Format: minute hour day month weekday"
+        read -p "Enter custom cron expression: " cron_time
+        ;;
+
+    *)
+        echo "Invalid choice"
+        exit 1
+        ;;
+esac
+
+job="$cron_time $command"
+
+echo
+echo "Generated cron job:"
+echo "$job"
+
+# Check if already exists
+if crontab -l 2>/dev/null | grep -Fq "$job"
+then
+    echo
+    echo "Cron job already exists"
+else
+    (
+        crontab -l 2>/dev/null
+        echo "$job"
+    ) | crontab -
+
+    echo
+    echo "Cron job added successfully"
+fi

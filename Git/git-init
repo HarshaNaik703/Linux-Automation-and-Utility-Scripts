@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-git init
-git add *
-read -p "Paste your first commit message:" message
-git commit -m "$message"
-git branch -M main
-#shift
-read -p "paste your github repo link" http 
+
+bash ./git-automation
+
+read -p "GitHub repository URL: " http
+
+git remote get-url origin >/dev/null 2>&1 ||
 git remote add origin "$http"
-git push -u origin main
+
+git push -u origin "$(git branch --show-current)"
 
 

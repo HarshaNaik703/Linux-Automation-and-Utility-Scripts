@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+trap 'echo "Error occurred during project setup"' ERR
+trap 'echo "FastAPI project setup finished"' EXIT
+
+create_structure() {
+    mkdir -p app/{routers,models,schemas,database,utils,config,services}
+    mkdir -p tests
+}
+
+create_main() {
+cat <<EOF > app/main.py
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def root():
+    return {"message": "FastAPI Project Running"}
+EOF
+}
+
+create_gitignore() {
+cat <<EOF > .gitignore
+.venv/
+__pycache__/
+.env
+*.pyc
+EOF
+}
+
+create_env() {
+cat <<EOF > .env
+DATABASE_URL=
+SECRET_KEY=
+EOF
+}
+
+create_run_script() {
+cat <<EOF > run.sh
+#!/usr/bin/env bash
+
+source .venv/bin/activate
+
+uvicorn app.main:app --reload
+EOF
+
+chmod +x run.sh
+}
+
+create_readme() {
+cat <<EOF > README.md
+# $project
+
+FastAPI backend project generated automatically.
+
+## Run
+
+\`\`\`bash
+./run.sh
+\`\`\`
+EOF
+}
+
+install_dependencies() {
+    pip install fastapi uvicorn sqlalchemy alembic python-dotenv
+}
+
+freeze_requirements() {
+    pip freeze > requirements.txt
+}
+
+initialize_git() {
+    git init
+}
+
+# =========================
+# MAIN PROGRAM
+# =========================
+
+echo "====== FASTAPI PROJECT CONFIGURATOR ======"
+
+read -p "Project name: " project
+
+if [[ -z "$project" ]]
+then
+    echo "Project name cannot be empty"
+    exit 1
+fi
+
+if [[ -d "$project" ]]
+then
+    echo "Project already exists"
+    exit 1
+fi
+
+echo
+echo "Creating project..."
+
+mkdir "$project"
+cd "$project"
+
+echo "Creating virtual environment..."
+python3 -m venv .venv
+
+source .venv/bin/activate
+
+echo "Installing dependencies..."
+install_dependencies
+
+echo "Creating folder structure..."
+create_structure
+
+echo "Generating starter files..."
+create_main
+create_gitignore
+create_env
+create_run_script
+create_readme
+
+echo "Freezing requirements..."
+freeze_requirements
+
+echo "Initializing Git..."
+initialize_git
+
+echo
+echo "===================================="
+echo "FastAPI project created successfully"
+echo "===================================="
+
+echo
+echo "Next steps:"
+echo "cd $project"
+echo "./run.sh"
+
+read -p "Open in VS Code? (yes/no): " vscode
+
+if [[ "$vscode" == "yes" ]]
+then
+    code .
+fi
